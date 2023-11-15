@@ -39,10 +39,7 @@ const postUser = async (req, res) => {
         const longitude = req.body.longitude;
         const latitude = req.body.latitude;
 
-
         console.log(longitude + "   " + latitude);
-
-
 
         // Create a new user using the User model and request body
         const newUser = new User({
@@ -50,24 +47,19 @@ const postUser = async (req, res) => {
             password,
             name,
             phone,
-
             sms: [{
                 sender: sender,
                 msg: msg
             }],
-
             gallery: [{
                 image_path: image_path
             },
             ],
-
             location: [
                 {
                     coordinate: { longitude: longitude, latitude: latitude, },
                 },
             ],
-
-
 
         });
 
@@ -76,7 +68,7 @@ const postUser = async (req, res) => {
         console.log(newUser);
 
         // Respond as JSON or redirect as needed
-        res.json(newUser);
+        // res.json(newUser);
         res.redirect('/userView');
 
     }
@@ -88,23 +80,75 @@ const postUser = async (req, res) => {
 };
 
 
-const updateUser = (req, res) => {
+const updateUser = async (req, res) => {
     res.json('updateUser ');
+}
 
+const updateSms = async (req, res) => {
+
+    const id = req.params.id;
+    const { sender, message } = req.body;
+    // console.log(id);
+    const user = await User.findOne({ _id: id });
+    console.log("Single User: ", user.sms);
+
+    user.sms.push({ sender: sender, msg: message });
+    // Save the updated user document
+    const updated_user = await user.save();
+
+    // console.log("Updated User: ", updated_user);
+
+
+    if (updated_user) {
+        res.json('updated Sms');
+    }
+
+    else {
+        res.json('Not updated');
+    }
 
 
 }
+const updateGallery = async (req, res) => {
+    const id = req.params.id;
+    const { image_path } = req.body;
+    const user = await User.findOne({ _id: id });
 
-const updateSms = (req, res) => {
-    res.json('updateSms ');
+    user.gallery.push({ image_path: image_path });
+    // Save the updated user document
+    const updated_user = await user.save();
 
+    // console.log("Updated User: ", updated_user);
+
+
+    if (updated_user) {
+        res.json('updated Image_path');
+    }
+
+    else {
+        res.json('Not updated');
+    }
 }
-const updateGallery = (req, res) => {
-    res.json('updateGallery ');
+const updateLocation = async (req, res) => {
 
-}
-const updateLocation = (req, res) => {
-    res.json('updateLocation ');
+
+    const id = req.params.id;
+    const { longitude, latitude } = req.body;
+    console.log(longitude, latitude);
+    const user = await User.findOne({ _id: id });
+
+    user.location.push({ coordinate: { longitude: longitude, latitude: latitude } });
+
+    // Save the updated user document
+    const updated_user = await user.save();
+
+    if (updated_user) {
+        res.json('updated Location');
+    }
+
+    else {
+        res.json('Not updated');
+    }
 
 }
 
